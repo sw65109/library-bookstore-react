@@ -6,7 +6,7 @@ A modern, responsive online bookstore built with React and Vite. Browse, search,
 
 ## 🚀 Demo
 
-(https://vercel.com/sw65109s-projects/library-bookstore-react)
+https://library-bookstore-react.vercel.app
 https://github.com/sw65109/library-bookstore-react.git
 
 ## ✨ Features
