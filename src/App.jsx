@@ -11,6 +11,9 @@ import Confirmation from "./pages/Confirmation";
 import Login from "./pages/Login";
 import BillingShipping from "./pages/BillingShipping";
 import { books } from "./data";
+import { analytics } from "./firebase/init";
+import { logEvent } from "firebase/analytics";
+
 
 function App() {
   const [cart, setCart] = useState(() => {
@@ -21,6 +24,10 @@ function App() {
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
+
+  useEffect(() => {
+    logEvent(analytics, "app_loaded");
+  }, []);
 
   function addToCart(book) {
     const updatedCart = [...cart, { ...book, quantity: 1 }];

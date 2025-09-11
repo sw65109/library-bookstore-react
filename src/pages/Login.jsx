@@ -1,7 +1,34 @@
 import React, { useState } from "react";
+import { auth } from "../firebase/init";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword
+} from "firebase/auth";
+
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] =useState("");
+  const [fullName, setFullName] = useState("");
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    if(!email || !password) return;
+
+    try {
+      if (isLogin) {
+        await signInWithEmailAndPassword(auth, email, password);
+        console.log("Login attempted:", {email, password});
+      }
+      else {
+        await createUserWithEmailAndPassword(auth, email, password);
+        console.log("Signup attempted:", {fullName, email, password});
+      }
+    } catch (error) {
+      console.log("Auth error", error.message)
+    }
+  }
 
   return (
     <div className="login__page">
@@ -12,13 +39,15 @@ const Login = () => {
               <h2 className="login__title">
                 {isLogin ? "Login to Your Account" : "Create an Account"}
               </h2>
-              <form className="login__form" autoComplete="off">
+              <form className="login__form" autoComplete="off" onSubmit={handleSubmit}>
                 {!isLogin && (
                   <input
                     type="text"
                     placeholder="Full Name"
                     className="login__input"
                     required
+                    value={fullName}
+                    onChange={(event) => setFullName(event.target.value)}
                   />
                 )}
                 <input
@@ -27,6 +56,8 @@ const Login = () => {
                   className="login__input"
                   required
                   autoComplete="off"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
                 />
                 <input
                   type="password"
@@ -35,6 +66,8 @@ const Login = () => {
                   className="login__input"
                   required
                   autoComplete="new-password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
                 />
                 <button 
                 className="btn login__btn demo-btn" 

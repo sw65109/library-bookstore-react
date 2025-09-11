@@ -1,11 +1,25 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { db } from "../firebase/init";
+import { addDoc, collection } from "firebase/firestore";
+
 
 const BillingShipping = ({ cart, total }) => {
   const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+
+    try{
+      await addDoc(collection(db, "orders"), {
+        cart,
+        total,
+        createdAt: new Date().toISOString(),
+      });
+      console.log("Order submitted to Firestore (demo):", { cart, total });
+    } catch (error) {
+      console.error("Firestore error:", error.message);
+    }
 
     navigate("/confirmation", {
       state: {
