@@ -951,11 +951,11 @@ Login
 .login__input {
   margin-bottom: 18px;
   padding: 12px;
+  padding-right: 40px; 
   font-size: 16px;
   border-radius: 6px;
   border: 1px solid #242424;
   width: 100%;
-  box-sizing: border-box;
 }
 
 .login__btn {
@@ -980,6 +980,30 @@ Login
   font-size: 16px;
   padding: 0;
 }
+
+.login__spinner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
+  background: rgba(255, 255, 255, 0.8); /* optional overlay */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  font-size: 32px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 
 /* SMALL PHONES, TABLETS, LARGE SMARTPHONES */
 @media (max-width: 768px) {

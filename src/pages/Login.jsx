@@ -2,33 +2,55 @@ import React, { useState } from "react";
 import { auth } from "../firebase/init";
 import {
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword
+  createUserWithEmailAndPassword,
 } from "firebase/auth";
+import {
+  FaSpinner,
+} from "react-icons/fa" // ✅ Centralized icon import
 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
-  const [password, setPassword] =useState("");
+  const [confirmEmail, setConfirmEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if(!email || !password) return;
+    if (!email || !password) return;
+
+    if (!isLogin && email !== confirmEmail) {
+      alert("Emails don't match");
+      return;
+    }
+
+    if (!isLogin && password !== confirmPassword) {
+      alert("Passwords don't match");
+      return;
+    }
+
+    setIsLoading(true);
 
     try {
+      await delay(isLogin ? 2500 : 3000);
+
       if (isLogin) {
         await signInWithEmailAndPassword(auth, email, password);
-        console.log("Login attempted:", {email, password});
-      }
-      else {
+        console.log("Login attempted:", { email, password });
+      } else {
         await createUserWithEmailAndPassword(auth, email, password);
-        console.log("Signup attempted:", {fullName, email, password});
+        console.log("Signup attempted:", { fullName, email, password });
       }
     } catch (error) {
-      console.log("Auth error", error.message)
+      console.log("Auth error", error.message);
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="login__page">
@@ -39,7 +61,11 @@ const Login = () => {
               <h2 className="login__title">
                 {isLogin ? "Login to Your Account" : "Create an Account"}
               </h2>
-              <form className="login__form" autoComplete="off" onSubmit={handleSubmit}>
+              <form
+                className="login__form"
+                autoComplete="off"
+                onSubmit={handleSubmit}
+              >
                 {!isLogin && (
                   <input
                     type="text"
@@ -52,32 +78,76 @@ const Login = () => {
                 )}
                 <input
                   type="email"
+                  name="email"
                   placeholder="Email"
                   className="login__input"
                   required
                   autoComplete="off"
+                  disabled={isLoading}
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                 />
-                <input
-                  type="password"
-                  name="mock-password"
-                  placeholder="Password"
-                  className="login__input"
-                  required
-                  autoComplete="new-password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                />
-                <button 
-                className="btn login__btn demo-btn" 
-                type="submit"
-                title="Demo only - no real login"
-                disabled
+                {!isLogin && (
+                  <input
+                    type="email"
+                    name="confirmEmail"
+                    placeholder="Confirm Email"
+                    className="login__input"
+                    required
+                    autoComplete="off"
+                    disabled={isLoading}
+                    value={confirmEmail}
+                    onChange={(event) => setConfirmEmail(event.target.value)}
+                  />
+                )}
+                  <input
+                    type="password"
+                    name="mock-password"
+                    placeholder="Password"
+                    className="login__input"
+                    required
+                    autoComplete="off"
+                    disabled={isLoading}
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                  />
+                {!isLogin && (
+                    <input
+                      type="password"
+                      name="confirmMock-password"
+                      placeholder="Confirm Password"
+                      className="login__input"
+                      required
+                      autoComplete="off"
+                      disabled={isLoading}
+                      value={confirmPassword}
+                      onChange={(event) =>
+                        setConfirmPassword(event.target.value)
+                      }
+                    />
+                )}
+                <button
+                  className="btn login__btn demo-btn"
+                  type="submit"
+                  title="Demo only - no real login"
+                  disabled={isLoading}
                 >
-                  {isLogin ? "Login" : "Sign Up"}
+                  {isLoading
+                    ? isLogin
+                      ? "Logging in..."
+                      : "Signing up..."
+                    : isLogin
+                    ? "Login"
+                    : "Sign Up"}
                 </button>
               </form>
+
+              {isLoading && (
+                <div className="login__spinner">
+                  <FaSpinner className="spinner" />
+                </div>
+              )}
+
               <p className="login__toggle">
                 {isLogin
                   ? "Don't have an account?"
@@ -86,6 +156,7 @@ const Login = () => {
                   type="button"
                   className="login__link"
                   onClick={() => setIsLogin((prev) => !prev)}
+                  disabled={isLoading}
                 >
                   {isLogin ? "Sign Up" : "Login"}
                 </button>

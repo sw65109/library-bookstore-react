@@ -1,5 +1,7 @@
 import React, { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { analytics } from "../firebase/init";
+import {  logEvent } from "firebase/analytics"
 
 const Confirmation = ({ clearCart }) => {
   const { state } = useLocation();
@@ -7,8 +9,16 @@ const Confirmation = ({ clearCart }) => {
 
   useEffect(() => {
     clearCart();
-  }, [clearCart]);
-
+    
+    if (cart && cart.length > 0) {
+      logEvent(analytics, "order_confirmed", {
+        item_count: cart.length,
+        cart_value: parseFloat(total),
+        timestamp: Date.now()
+      })
+    }
+  }, [clearCart, cart, total]);
+    
   return (
     <div id="books__body">
       <main id="books__main">
