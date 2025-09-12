@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { auth } from "../firebase/init";
 import {
   signInWithEmailAndPassword,
@@ -6,11 +6,38 @@ import {
 } from "firebase/auth";
 import {
   FaSpinner,
-} from "react-icons/fa" // ✅ Centralized icon import
+} from "react-icons/fa"
+import { useNavigate } from "react-router-dom"
+
+const SESSION_KEY = "demo_user_session";
+const SESSION_DURATION = 20 * 60 * 1000;
+
+function saveSession(email) {
+  localStorage.setItem(
+    SESSION_KEY,
+    JSON.stringify({ email, loginTime: Date.now() })
+  );
+}
+
+function getSession() {
+  const data = localStorage.getItem(SESSION_KEY);
+  if(!data) return null;
+  const session = JSON.parse(data);
+  if (Date.now() - session.loginTime > SESSION_DURATION) {
+    localStorage.removeItem(SESSION_KEY);
+    return null;
+  }
+  return session;
+}
+
+function clearSession() {
+  localStorage.removeItem(SESSION_KEY)
+}
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const Login = () => {
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [confirmEmail, setConfirmEmail] = useState("");
@@ -18,6 +45,25 @@ const Login = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  const[errorMSG, setErrorMSG] = useState("")
+
+  useEffect(() => {
+    function checkSession(){
+      const session = getSession();
+      if (session) {
+        setUser(session.email);
+      } else {
+        setUser(null);
+      }
+    }
+
+    checkSession();
+
+    const interval = setInterval(checkSession, 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -40,17 +86,28 @@ const Login = () => {
 
       if (isLogin) {
         await signInWithEmailAndPassword(auth, email, password);
-        console.log("Login attempted:", { email, password });
+        saveSession(email);
+        setUser(email);
+        setErrorMSG("");
+        navigate("/");
       } else {
         await createUserWithEmailAndPassword(auth, email, password);
-        console.log("Signup attempted:", { fullName, email, password });
+        saveSession(email);
+        setErrorMSG("")
+        setUser(email);
+        navigate("/")
       }
     } catch (error) {
-      console.log("Auth error", error.message);
+      setErrorMSG(error.message);
     } finally {
       setIsLoading(false);
     }
   };
+
+  const handleLogout = () => {
+    clearSession();
+    setUser(null);
+  }
 
   return (
     <div className="login__page">
@@ -61,61 +118,70 @@ const Login = () => {
               <h2 className="login__title">
                 {isLogin ? "Login to Your Account" : "Create an Account"}
               </h2>
-              <form
+              {errorMSG && (
+                <div className="login__error">{errorMSG}</div>
+              )}
+              {user ? (
+                <div>
+                  <p className="login__para">Welcome {user}</p>
+                  <button className="btn login__btn" onClick={handleLogout}>Logout</button>
+                </div>
+              ) : (
+                <form
                 className="login__form"
                 autoComplete="off"
                 onSubmit={handleSubmit}
-              >
+                >
                 {!isLogin && (
                   <input
-                    type="text"
-                    placeholder="Full Name"
-                    className="login__input"
-                    required
-                    value={fullName}
-                    onChange={(event) => setFullName(event.target.value)}
+                  type="text"
+                  placeholder="Full Name"
+                  className="login__input"
+                  required
+                  value={fullName}
+                  onChange={(event) => setFullName(event.target.value)}
                   />
                 )}
                 <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                className="login__input"
+                required
+                autoComplete="off"
+                disabled={isLoading}
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                />
+                {!isLogin && (
+                  <input
                   type="email"
-                  name="email"
-                  placeholder="Email"
+                  name="confirmEmail"
+                  placeholder="Confirm Email"
                   className="login__input"
                   required
                   autoComplete="off"
                   disabled={isLoading}
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                />
-                {!isLogin && (
-                  <input
-                    type="email"
-                    name="confirmEmail"
-                    placeholder="Confirm Email"
-                    className="login__input"
-                    required
-                    autoComplete="off"
-                    disabled={isLoading}
-                    value={confirmEmail}
-                    onChange={(event) => setConfirmEmail(event.target.value)}
+                  value={confirmEmail}
+                  onChange={(event) => setConfirmEmail(event.target.value)}
                   />
                 )}
                   <input
-                    type="password"
-                    name="mock-password"
-                    placeholder="Password"
-                    className="login__input"
-                    required
-                    autoComplete="off"
+                  type="password"
+                  name="mock-password"
+                  placeholder="Password"
+                  className="login__input"
+                  required
+                  autoComplete="off"
                     disabled={isLoading}
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
-                  />
+                    />
                 {!isLogin && (
-                    <input
-                      type="password"
-                      name="confirmMock-password"
-                      placeholder="Confirm Password"
+                  <input
+                  type="password"
+                  name="confirmMock-password"
+                  placeholder="Confirm Password"
                       className="login__input"
                       required
                       autoComplete="off"
@@ -124,27 +190,27 @@ const Login = () => {
                       onChange={(event) =>
                         setConfirmPassword(event.target.value)
                       }
-                    />
-                )}
+                      />
+                    )}
                 <button
-                  className="btn login__btn demo-btn"
-                  type="submit"
-                  title="Demo only - no real login"
-                  disabled={isLoading}
+                className="btn login__btn demo-btn"
+                type="submit"
+                title="Demo only - no real login"
+                disabled={isLoading}
                 >
                   {isLoading
                     ? isLogin
-                      ? "Logging in..."
-                      : "Signing up..."
+                    ? "Logging in..."
+                    : "Signing up..."
                     : isLogin
                     ? "Login"
                     : "Sign Up"}
                 </button>
               </form>
-
+              )}
               {isLoading && (
                 <div className="login__spinner">
-                  <FaSpinner className="spinner" />
+                <FaSpinner className="spinner" />
                 </div>
               )}
 
@@ -157,7 +223,7 @@ const Login = () => {
                   className="login__link"
                   onClick={() => setIsLogin((prev) => !prev)}
                   disabled={isLoading}
-                >
+                  >
                   {isLogin ? "Sign Up" : "Login"}
                 </button>
               </p>

@@ -12,6 +12,11 @@ const Nav = ({ numberOfItems }) => {
     document.body.classList.remove("menu--open");
   }
 
+  function resetDemo() {
+    localStorage.clear();
+    window.location.reload();
+  }
+
   return (
     <nav>
       <div className="nav__container">
@@ -48,6 +53,14 @@ const Nav = ({ numberOfItems }) => {
             >
               <FontAwesomeIcon icon="user" />
             </Link>
+          </li>
+          <li className="nav__icon">
+            <button 
+            className="reset__btn"
+            onClick={resetDemo}
+            >
+              Rest Demo
+            </button>
           </li>
         </ul>
         <div className="menu__backdrop">

@@ -247,13 +247,7 @@ header {
 
 .header__img--wrapper {
   padding: 20px;
-
-  /* Added this after the tutorial to 
-  show it over the wave on larger screens */
   z-index: 50;
-
-  /* Added this after the tutorial to 
-  make landing page responsive on laptops */
   max-height: 50vh;
 }
 
@@ -281,6 +275,25 @@ header {
 .no-cursor {
   cursor: not-allowed;
 }
+
+.reset__btn {
+  background-color: #7342d6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 16px;
+  font-weight: 500;
+  margin-left: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.reset__btn:hover,
+.reset__btn:focus {
+  background-color: #7342d6;
+}
+
 /* 
 
 HIGHLIGHTS 
@@ -932,6 +945,8 @@ Login
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.12);
+  transition: box-shadow 0.2s;
 }
 
 .login__title {
@@ -958,11 +973,35 @@ Login
   width: 100%;
 }
 
+.login__input:focus {
+  border: 1.5px solid #7342d6;
+  background: #fff;
+  outline: none;
+}
+
+.login__para {
+  margin-bottom: 24px;
+}
+
 .login__btn {
   width: 100%;
-  font-size: 12px;
+  font-size: 16px;
+  padding: 14px 0;
+  background: #7342d6;
+  color: #fff;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  transition: background 0.2s, transform 0.1s;
   margin-bottom: 12px;
 }
+
+.login__btn:hover:not(:disabled),
+.login__btn:focus:not(:disabled) {
+  background: #5a2bb7;
+  transform: translateY(-2px) scale(1.03);
+}
+
 
 .login__toggle {
   margin-top: 12px;
@@ -979,6 +1018,15 @@ Login
   text-decoration: underline;
   font-size: 16px;
   padding: 0;
+}
+
+.login__error {
+  background-color: #7342d6;
+  color: #fff;
+  border-radius: 4px;
+  padding: 24px;
+  margin-bottom: 18px;
+  text-align: center;
 }
 
 .login__spinner {
@@ -1003,6 +1051,8 @@ Login
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+
 
 
 /* SMALL PHONES, TABLETS, LARGE SMARTPHONES */
