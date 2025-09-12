@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react-swc';
 export default defineConfig({
   plugins: [react()],
   server: {
-    open: true, // 👈 This opens your default browser at localhost:5173
+    open: true, // 👈 This opens your default browser at localhost:5002
+    port: 5002
   },
 });

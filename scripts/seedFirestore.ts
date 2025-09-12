@@ -13,13 +13,20 @@ const seedBooks = async () => {
   const booksRef = db.collection('books');
 
   books.forEach((book) => {
-    const docRef = booksRef.doc(book.id.toString()); // use ID as doc name
+    const docRef = booksRef.doc(book.id.toString()); 
     batch.set(docRef, book);
   });
 
   await batch.commit();
   console.log('✅ Firestore seeded with books!');
 };
+
+seedBooks()
+.then(() => process.exit(0))
+.catch((err) => {
+  console.error(" Failed to seed Firestore:", err);
+  process.exit(1);
+});
 
 seedBooks().catch(console.error);
 

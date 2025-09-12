@@ -38,8 +38,17 @@
       "port": 8080
     },
     "ui": {
-      "enabled": true
+      "enabled": true,
+      "port": 5005
     },
-    "singleProjectMode": true
+    "singleProjectMode": true,
+    "apphosting": {
+      "port": 5002,
+      "rootDirectory": ".",
+      "startCommand": "npm run dev"
+    },
+    "hosting": {
+      "port": 5000
+    }
   }
 }
